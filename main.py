@@ -53,10 +53,8 @@ def main():
             ToolRetryMiddleware(max_retries=LLM_CONFIG_MIDDLEWARE["max_retries"]),
             SummarizationMiddleware(
                 model=LLM_CONFIG_MIDDLEWARE["model"],
-                max_tokens_before_summary=LLM_CONFIG_MIDDLEWARE[
-                    "max_tokens_before_summary"
-                ],
-                messages_to_keep=LLM_CONFIG_MIDDLEWARE["messages_to_keep"],
+                trigger=("tokens", LLM_CONFIG_MIDDLEWARE["max_tokens_before_summary"]),
+                keep=("messages", LLM_CONFIG_MIDDLEWARE["messages_to_keep"]),
             ),
             ContextEditingMiddleware(
                 edits=[
