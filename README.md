@@ -4,7 +4,7 @@ A LangChain/LangGraph-based conversational agent that performs unit conversions 
 
 ## 📚 Learning Resources
 
-**👉 [Complete DTO Guide](./DTO_GUIDE.md)** - Comprehensive guide explaining:
+**👉 [Complete DTO Guide](./docs/DTO_GUIDE.md)** - Comprehensive guide explaining:
 - Why DTOs are critical for agents
 - Step-by-step blueprint for building agents from scratch
 - Lessons learned and best practices
