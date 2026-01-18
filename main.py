@@ -67,6 +67,7 @@ def main():
         model=llm,
         tools=tools,
         system_prompt=get_agent_prompt(tools),
+        # Temporarily disabled ToolStrategy to test if it's causing loops
         response_format=ToolStrategy(AgentResponse),
         middleware=[
             log_messages,
@@ -129,7 +130,11 @@ def main():
 
         result_dict = compiled_agent.invoke(
             {"messages": [{"role": "user", "content": question}]},
-            config={"recursion_limit": 50},  # Prevent infinite loops
+            config={
+                "recursion_limit": 50,  # Prevent infinite loops
+                # Also set limit for subgraph
+                "configurable": {"recursion_limit": 50}
+            },
         )
 
         result = AgentState(**result_dict)
@@ -142,12 +147,14 @@ def main():
             print(f"Tools used: {', '.join(result.tool_calls_made)}")
             print(f"Total tool calls: {result.tool_call_count}")
 
-        if result.structured_response:
-            print(f"Structured response: {result.structured_response.final_answer}")
-            if result.structured_response.tool_calls_used:
-                print(
-                    f"Tool calls in response: {result.structured_response.tool_calls_used}"
-                )
+        # Note: structured_response only exists when using ToolStrategy
+        # Temporarily disabled to test loop issue
+        # if result.structured_response:
+        #     print(f"Structured response: {result.structured_response.final_answer}")
+        #     if result.structured_response.tool_calls_used:
+        #         print(
+        #             f"Tool calls in response: {result.structured_response.tool_calls_used}"
+        #         )
 
         print("-" * 60)
 
