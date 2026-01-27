@@ -5,6 +5,7 @@ A LangChain/LangGraph-based conversational agent that performs unit conversions 
 ## 📚 Learning Resources
 
 **👉 [Complete DTO Guide](./docs/DTO_GUIDE.md)** - Comprehensive guide explaining:
+
 - Why DTOs are critical for agents
 - Step-by-step blueprint for building agents from scratch
 - Lessons learned and best practices
@@ -23,7 +24,7 @@ This project serves as a practical example implementing all the concepts in the 
 
 ## Project Structure
 
-```
+```text
 dto_test/
 ├── main.py                 # Main agent orchestration
 ├── config.py               # LLM and agent configuration
@@ -32,10 +33,10 @@ dto_test/
 ├── tools/                  # Conversion tools
 │   ├── feet_meters.py     # Feet to meters conversion
 │   ├── meters_feet.py     # Meters to feet conversion
-│   ├── celsius_farenheit.py  # Celsius to Fahrenheit conversion
-│   └── fahreheit_celsius.py  # Fahrenheit to Celsius conversion
+│   ├── celsius_fahrenheit.py  # Celsius to Fahrenheit conversion
+│   └── fahrenheit_celsius.py  # Fahrenheit to Celsius conversion
 └── utils/
-    └── middlewere_funcs.py  # Custom middleware functions
+    └── middleware_functions.py  # Custom middleware functions
 ```
 
 ## Requirements
@@ -46,14 +47,16 @@ dto_test/
 ## Installation
 
 1. Install dependencies using `uv` (or your preferred package manager):
-```bash
-uv sync
-```
+
+   ```bash
+   uv sync
+   ```
 
 2. Create a `.env` file in the project root:
-```env
-OPENAI_API_KEY=your_api_key_here
-```
+
+   ```env
+   OPENAI_API_KEY=your_api_key_here
+   ```
 
 ## Usage
 
@@ -64,6 +67,7 @@ python main.py
 ```
 
 The script will run 10 test questions covering various conversion scenarios:
+
 - Feet to meters conversions
 - Meters to feet conversions
 - Celsius to Fahrenheit conversions
@@ -81,6 +85,7 @@ The script will run 10 test questions covering various conversion scenarios:
 ### State Management
 
 The `AgentState` model tracks:
+
 - Conversation messages
 - Tool calls made and count
 - Conversion results
@@ -91,6 +96,7 @@ The `AgentState` model tracks:
 ### Tools
 
 Each conversion tool:
+
 - Extends `BaseTool` from LangChain
 - Uses Pydantic models for input validation
 - Returns structured responses with timestamps
@@ -113,6 +119,7 @@ Configuration is managed in `config.py`:
 - **AGENT_PROMPT**: System prompt for the agent
 
 Default settings:
+
 - Main model: `gpt-5.2` (temperature: 0.1, max_tokens: 50000)
 - Middleware model: `gpt-4.1` (temperature: 0.1, max_tokens: 4000)
 - Context summarization trigger: 2000 tokens
@@ -120,7 +127,7 @@ Default settings:
 
 ## Example Output
 
-```
+```text
 [Test 1/10]
 Question: How many meters are in 185 feet?
 ------------------------------------------------------------
@@ -147,7 +154,7 @@ Update `dto/state.py` to add new state fields. The state is automatically manage
 
 ### Customizing Middleware
 
-Add middleware functions in `utils/middlewere_funcs.py` and register them in the `create_agent` call in `main.py`.
+Add middleware functions in `utils/middleware_functions.py` and register them in the `create_agent` call in `main.py`.
 
 ## Dependencies
 

@@ -1,6 +1,7 @@
 # Data Transfer Objects (DTOs) in LangChain/LangGraph Agents: A Complete Guide
 
 ## Table of Contents
+
 1. [What Are DTOs and Why Use Them?](#what-are-dtos-and-why-use-them)
 2. [Why DTOs Are Critical for Agents](#why-dtos-are-critical-for-agents)
 3. [Lessons Learned from This Project](#lessons-learned-from-this-project)
@@ -12,17 +13,19 @@
 
 ---
 
-## What Are DTOs and Why Use Them?
+## What Are DTOs and Why Use Them
 
 **Data Transfer Objects (DTOs)** are simple objects that carry data between different layers of an application. In Python, we typically use **Pydantic models** or **TypedDict** to define DTOs.
 
-### Key Characteristics:
+### Key Characteristics
+
 - **Structured**: Define exact shape and types of data
 - **Validated**: Automatic type checking and validation
 - **Self-documenting**: Field descriptions explain purpose
 - **Type-safe**: IDE autocomplete and static type checking
 
-### Example:
+### Example
+
 ```python
 from pydantic import BaseModel, Field
 
@@ -38,7 +41,9 @@ class ConversionInput(BaseModel):
 ## Why DTOs Are Critical for Agents
 
 ### 1. **Tool Input Validation**
+
 Agents call tools with parameters extracted from natural language. DTOs ensure:
+
 - ✅ Correct data types (no "37" strings when you need 37.0)
 - ✅ Required fields are present
 - ✅ Invalid values are caught before execution
@@ -48,13 +53,16 @@ Agents call tools with parameters extracted from natural language. DTOs ensure:
 **With DTOs**: Agent passes `{"feet": "ten"}` → Validation error: "feet must be a float"
 
 ### 2. **Structured Output Control**
+
 Agents need to return consistent, parseable responses. DTOs provide:
+
 - ✅ Predictable response format
 - ✅ Easy parsing and processing
 - ✅ Type safety for downstream code
 - ✅ Clear contracts between components
 
 **Example**: Instead of free-form text, you get:
+
 ```python
 class AgentResponse(BaseModel):
     final_answer: str
@@ -63,21 +71,27 @@ class AgentResponse(BaseModel):
 ```
 
 ### 3. **State Management in LangGraph**
+
 LangGraph uses state schemas to manage conversation flow. DTOs define:
+
 - ✅ What data flows through the graph
 - ✅ How state updates are merged
 - ✅ Type safety across nodes
 - ✅ Clear state contracts
 
 ### 4. **Configuration Management**
+
 Agent configuration becomes type-safe and validated:
+
 - ✅ Invalid config values caught at startup
 - ✅ IDE autocomplete for all settings
 - ✅ Default values and validation rules
 - ✅ Clear documentation of options
 
 ### 5. **Debugging and Observability**
+
 DTOs make debugging easier:
+
 - ✅ Clear structure shows what data is flowing
 - ✅ Validation errors pinpoint exact issues
 - ✅ Type hints help IDE debugging
@@ -92,6 +106,7 @@ DTOs make debugging easier:
 **Problem**: Tools had Pydantic models defined but weren't connected to the tools.
 
 **Solution**: Set `args_schema` attribute on `BaseTool`:
+
 ```python
 class FeetToMetersTool(BaseTool):
     name: str = "feet_to_meters"
@@ -106,12 +121,13 @@ class FeetToMetersTool(BaseTool):
 
 ### Lesson 2: Return Types Must Match Actual Returns
 
-**Problem**: Tool return type said `-> float` but returned `CelsiusToFarenheitResponse` object.
+**Problem**: Tool return type said `-> float` but returned `CelsiusToFahrenheitResponse` object.
 
 **Solution**: Match return type annotation:
+
 ```python
-def _run(self, **kwargs) -> CelsiusToFarenheitResponse:  # ← Match actual return
-    return CelsiusToFarenheitResponse(...)
+def _run(self, **kwargs) -> CelsiusToFahrenheitResponse:  # ← Match actual return
+    return CelsiusToFahrenheitResponse(...)
 ```
 
 **Why**: Type mismatches confuse the agent and can cause infinite loops.
@@ -121,6 +137,7 @@ def _run(self, **kwargs) -> CelsiusToFarenheitResponse:  # ← Match actual retu
 **Problem**: Used Pydantic `BaseModel` for state, but LangGraph prefers `TypedDict`.
 
 **Solution**: Use `TypedDict` for state schemas:
+
 ```python
 from typing import TypedDict, Annotated, Sequence
 from langgraph.graph.message import add_messages
@@ -131,7 +148,8 @@ class AgentState(TypedDict):
     # ... other fields
 ```
 
-**Why**: 
+**Why**:
+
 - Better performance (no validation overhead)
 - Simpler state updates (just return dicts)
 - More idiomatic for LangGraph
@@ -143,6 +161,7 @@ class AgentState(TypedDict):
 **Problem**: Agent got stuck calling the same tool repeatedly.
 
 **Solution**: Set recursion limit in invoke:
+
 ```python
 result = compiled_agent.invoke(
     {"messages": [...]},
@@ -157,6 +176,7 @@ result = compiled_agent.invoke(
 **Problem**: Agent kept calling tools even after getting results.
 
 **Solution**: Improve system prompt:
+
 ```python
 AGENT_PROMPT = """
 1. When the user asks for a conversion, use the appropriate tool ONCE
@@ -172,6 +192,7 @@ AGENT_PROMPT = """
 **Problem**: `create_agent` has fixed state schema (just messages).
 
 **Solution**: Wrap it as a subgraph node:
+
 ```python
 agent_subgraph = create_agent(...)  # Returns compiled graph
 
@@ -187,6 +208,7 @@ workflow.add_node("track_state", track_tool_calls)  # Custom tracking
 **Problem**: Tried to return Pydantic objects from state update functions.
 
 **Solution**: Return dictionaries with partial updates:
+
 ```python
 def track_tool_calls(state: AgentState) -> dict:  # ← Returns dict
     return {
@@ -204,6 +226,7 @@ def track_tool_calls(state: AgentState) -> dict:  # ← Returns dict
 ### Phase 1: Define Your DTOs
 
 #### Step 1.1: Tool Input DTOs
+
 Create Pydantic models for each tool's inputs:
 
 ```python
@@ -218,6 +241,7 @@ class ConversionInput(BaseModel):
 ```
 
 #### Step 1.2: Tool Output DTOs
+
 Define what tools return:
 
 ```python
@@ -235,6 +259,7 @@ class ConversionResult(BaseModel):
 ```
 
 #### Step 1.3: Agent Response DTO
+
 Define structured output format:
 
 ```python
@@ -249,6 +274,7 @@ class AgentResponse(BaseModel):
 ```
 
 #### Step 1.4: State Schema DTO
+
 Define LangGraph state:
 
 ```python
@@ -267,6 +293,7 @@ class AgentState(TypedDict):
 ```
 
 #### Step 1.5: Configuration DTOs
+
 Convert config dicts to Pydantic:
 
 ```python
@@ -285,6 +312,7 @@ LLM_CONFIG = LLMConfig()  # Instantiate with defaults or override
 ### Phase 2: Create Tools
 
 #### Step 2.1: Implement BaseTool Subclass
+
 ```python
 # tools/my_tool.py
 from langchain.tools import BaseTool
@@ -318,6 +346,7 @@ class MyTool(BaseTool):
 ```
 
 **Key Points**:
+
 - ✅ Always set `args_schema`
 - ✅ Use `**kwargs` in `_run` signature
 - ✅ Validate inputs with your DTO
@@ -326,6 +355,7 @@ class MyTool(BaseTool):
 ### Phase 3: Configure the Agent
 
 #### Step 3.1: Create LLM Instance
+
 ```python
 from langchain_openai import ChatOpenAI
 from config import LLM_CONFIG
@@ -339,6 +369,7 @@ llm = ChatOpenAI(
 ```
 
 #### Step 3.2: Define System Prompt
+
 ```python
 AGENT_PROMPT = """
 You are a helpful assistant with access to these tools:
@@ -353,6 +384,7 @@ Instructions:
 ```
 
 #### Step 3.3: Create Agent with Structured Output
+
 ```python
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy
@@ -372,6 +404,7 @@ agent_subgraph = create_agent(
 ### Phase 4: Build LangGraph (Optional but Recommended)
 
 #### Step 4.1: Create State Tracking Nodes
+
 ```python
 from dto.state import AgentState
 
@@ -390,6 +423,7 @@ def track_tool_calls(state: AgentState) -> dict:
 ```
 
 #### Step 4.2: Build Graph
+
 ```python
 from langgraph.graph import StateGraph, START, END
 
@@ -404,6 +438,7 @@ compiled_agent = workflow.compile()
 ```
 
 #### Step 4.3: Invoke with Safety Limits
+
 ```python
 result = compiled_agent.invoke(
     {"messages": [{"role": "user", "content": "Your question"}]},
@@ -416,6 +451,7 @@ result = compiled_agent.invoke(
 ## DTO Implementation Patterns
 
 ### Pattern 1: Tool Input Validation
+
 ```python
 class ToolInput(BaseModel):
     param1: float = Field(description="...", gt=0)  # Must be positive
@@ -430,6 +466,7 @@ class MyTool(BaseTool):
 ```
 
 ### Pattern 2: Structured Tool Outputs
+
 ```python
 class ToolOutput(BaseModel):
     result: float
@@ -442,6 +479,7 @@ def _run(self, **kwargs) -> ToolOutput:
 ```
 
 ### Pattern 3: Agent Response Format
+
 ```python
 class AgentResponse(BaseModel):
     answer: str
@@ -455,6 +493,7 @@ agent = create_agent(
 ```
 
 ### Pattern 4: LangGraph State Schema
+
 ```python
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
@@ -466,6 +505,7 @@ def update_state(state: AgentState) -> dict:
 ```
 
 ### Pattern 5: Configuration as DTOs
+
 ```python
 class Config(BaseModel):
     value: int = Field(default=10, ge=0)
@@ -478,7 +518,7 @@ CONFIG = Config()  # Use CONFIG.value, CONFIG.name
 
 ## Best Practices
 
-### ✅ DO:
+### ✅ DO
 
 1. **Always use `args_schema`** for tool inputs
 2. **Match return type annotations** to actual return values
@@ -491,7 +531,7 @@ CONFIG = Config()  # Use CONFIG.value, CONFIG.name
 9. **Use default values** for optional fields
 10. **Document DTOs** with docstrings
 
-### ❌ DON'T:
+### ❌ DON'T
 
 1. **Don't skip `args_schema`** - tools won't validate inputs
 2. **Don't mismatch return types** - causes confusion
@@ -509,45 +549,55 @@ CONFIG = Config()  # Use CONFIG.value, CONFIG.name
 ## Common Pitfalls and Solutions
 
 ### Pitfall 1: Infinite Loops
+
 **Symptom**: Agent calls same tool repeatedly  
 **Cause**: No recursion limit or unclear stopping condition  
-**Solution**: 
+**Solution**:
+
 ```python
 config={"recursion_limit": 50}  # Set limit
 # Plus: Clear system prompt about when to stop
 ```
 
 ### Pitfall 2: Type Mismatch Errors
+
 **Symptom**: `ValidationError` or `TypeError`  
 **Cause**: Return type annotation doesn't match actual return  
 **Solution**: Match annotation to actual return:
+
 ```python
 def _run(self, **kwargs) -> ConversionResult:  # Match actual return
     return ConversionResult(...)  # Not float!
 ```
 
 ### Pitfall 3: State Update Not Working
+
 **Symptom**: State fields not updating  
 **Cause**: Returning objects instead of dicts  
 **Solution**: Return dict with partial updates:
+
 ```python
 def update(state: AgentState) -> dict:  # Returns dict
     return {"field": new_value}  # Not AgentState(...)
 ```
 
 ### Pitfall 4: Tool Input Validation Failing
+
 **Symptom**: Tool receives wrong types  
 **Cause**: `args_schema` not set or wrong schema  
 **Solution**: Always set `args_schema`:
+
 ```python
 class MyTool(BaseTool):
     args_schema: type[BaseModel] = MyInputSchema  # Required!
 ```
 
 ### Pitfall 5: Can't Access State Fields
+
 **Symptom**: `AttributeError` or `KeyError`  
 **Cause**: Using wrong access pattern  
-**Solution**: 
+**Solution**:
+
 - TypedDict: `state["field"]`
 - Pydantic: `state.field`
 
@@ -555,22 +605,24 @@ class MyTool(BaseTool):
 
 ## Architecture Decisions
 
-### Why Wrap `create_agent` in LangGraph?
+### Why Wrap `create_agent` in LangGraph
 
 **Decision**: Use `create_agent` as a subgraph node instead of building from scratch.
 
 **Rationale**:
+
 - ✅ Get all `create_agent` features (middleware, structured output)
 - ✅ Add custom state tracking on top
 - ✅ Best of both worlds
 
 **Alternative**: Build LangGraph manually (more control, more work)
 
-### Why TypedDict for State?
+### Why TypedDict for State
 
 **Decision**: Use `TypedDict` for `AgentState` instead of Pydantic.
 
 **Rationale**:
+
 - ✅ Better performance (no validation overhead)
 - ✅ Simpler updates (just return dicts)
 - ✅ More idiomatic for LangGraph
@@ -578,21 +630,23 @@ class MyTool(BaseTool):
 
 **Exception**: Use Pydantic if you need runtime validation.
 
-### Why Separate DTOs for Input/Output?
+### Why Separate DTOs for Input/Output
 
 **Decision**: Separate DTOs for tool inputs vs outputs.
 
 **Rationale**:
+
 - ✅ Clear separation of concerns
 - ✅ Different validation rules
 - ✅ Easier to evolve independently
 - ✅ Better documentation
 
-### Why Configuration as DTOs?
+### Why Configuration as DTOs
 
 **Decision**: Convert config dicts to Pydantic models.
 
 **Rationale**:
+
 - ✅ Type safety
 - ✅ Validation at startup
 - ✅ IDE autocomplete

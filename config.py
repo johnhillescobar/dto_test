@@ -86,7 +86,7 @@ CRITICAL INSTRUCTIONS:
 
 Example flow:
 - User asks: "Convert 0 Celsius to Fahrenheit"
-- You call: celsius_to_farenheit tool with celsius=0
+- You call: celsius_to_fahrenheit tool with celsius=0
 - Tool returns: result showing 32.0 Fahrenheit
 - You respond: "0 degrees Celsius is equal to 32.0 degrees Fahrenheit"
 - STOP - no more tool calls needed

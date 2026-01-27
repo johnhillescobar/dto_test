@@ -10,5 +10,7 @@ dependencies = [
     "langgraph>=1.0.5",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",
+    "jsonpointer>=2.4",
     "ruff>=0.14.11",
+    "langchain-core>=1.2.7",
 ]

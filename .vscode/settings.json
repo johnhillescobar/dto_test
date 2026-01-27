@@ -1,0 +1,25 @@
+{
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.limit.enabled": false,
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "python.terminal.activateEnvironment": true,
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceFolder}"
+    },
+    "html-validate.configFile": ".htmlvalidate.json",
+    "html-validate.enable": true,
+    "cSpell.words": [
+        "run",
+        "arun",
+        "Pydantic",
+        "PydanticModel",
+        "langchain",
+        "langgraph",
+        "parseable",
+        "kwargs",
+        "hasattr",
+        "docstrings",
+        "dtos",
+
+    ]
+}

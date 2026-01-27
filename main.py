@@ -15,9 +15,9 @@ from langgraph.graph import StateGraph, START, END
 from dto.state import AgentState, AgentResponse
 from tools.feet_meters import FeetToMetersTool
 from tools.meters_feet import MetersToFeetTool
-from tools.celsius_farenheit import CelsiusToFarenheitTool
-from tools.fahreheit_celsius import FahrenheitToCelsiusTool
-from utils.middlewere_funcs import log_messages, handle_errors
+from tools.celsius_fahrenheit import CelsiusToFahrenheitTool
+from tools.fahrenheit_celsius import FahrenheitToCelsiusTool
+from utils.middleware_functions import log_messages, handle_errors
 from config import AGENT_PROMPT, LLM_CONFIG, LLM_CONFIG_MIDDLEWARE
 
 load_dotenv()
@@ -45,12 +45,12 @@ def track_tool_calls(state: AgentState) -> dict:
 
 
 def main():
-    print("Hello from agent-lanchain105!")
+    print("Hello from agent-langchain105!")
 
     tools = [
         FeetToMetersTool(),
         MetersToFeetTool(),
-        CelsiusToFarenheitTool(),
+        CelsiusToFahrenheitTool(),
         FahrenheitToCelsiusTool(),
     ]
 
@@ -133,7 +133,7 @@ def main():
             config={
                 "recursion_limit": 50,  # Prevent infinite loops
                 # Also set limit for subgraph
-                "configurable": {"recursion_limit": 50}
+                "configurable": {"recursion_limit": 50},
             },
         )
 
